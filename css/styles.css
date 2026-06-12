@@ -714,7 +714,7 @@ p { max-width: 58ch; }
   gap: clamp(3rem, 8vh, 5.5rem);
 }
 
-/* the painter's path: a dashed gel-pen line wandering down the wall */
+/* the painter's path: a dashed pencil line wandering down the wall */
 .journey__line {
   position: absolute;
   inset: 0 auto 0 50%;
@@ -722,6 +722,21 @@ p { max-width: 58ch; }
   transform: translateX(-50%);
   color: oklch(0.42 0.04 75);
   pointer-events: none;
+}
+
+/* …and the paint that inks over the sketch as you walk it */
+.journey__paint { stroke: var(--amber); opacity: 0; }
+
+@supports (animation-timeline: view()) {
+  .journey__paint {
+    opacity: 0.9;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: inkOver both linear;
+    animation-timeline: view();
+    animation-range: entry 20% exit 85%;
+  }
+  @keyframes inkOver { to { stroke-dashoffset: 0; } }
 }
 
 .stop {
@@ -775,12 +790,38 @@ p { max-width: 58ch; }
 .stop__text a:hover { color: var(--amber); }
 
 @media (max-width: 760px) {
-  /* single rail down the left edge, like captions beside hung work */
-  .journey__line { inset: 0 auto 0 12px; transform: none; width: 40px; }
-  .stop { grid-template-columns: 1fr; gap: 1rem; padding-left: 2.4rem; }
-  .stop__art, .stop--flip .stop__art { order: 0; justify-self: start; width: min(340px, 100%); }
+  .journey { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .journey__head { text-align: left; justify-items: start; }
+  .journey__path { gap: 3.2rem; }
+
+  /* single rail hugging the left edge, like captions beside hung work */
+  .journey__line { inset: 0 auto 0 10px; transform: none; width: 26px; }
+
+  .stop { grid-template-columns: 1fr; gap: 0.9rem; padding-left: 2.1rem; }
+  .stop__art, .stop--flip .stop__art { order: 0; justify-self: stretch; width: 100%; }
   .stop--flip .stop__text { justify-self: start; }
-  .stop::before { left: 12px; top: 1.2rem; transform: translate(-50%, 0); }
+
+  /* art leans alternately, like frames waiting against the wall */
+  .stop__art img, .stop--flip .stop__art img { width: 100%; }
+  .stop:nth-child(even) .stop__art img { transform: rotate(1.2deg); }
+  .stop:nth-child(odd) .stop__art img { transform: rotate(-1.2deg); }
+
+  /* pin anchors to the top of each artwork on the rail */
+  .stop::before {
+    left: 10px; top: 0.4rem;
+    transform: translate(-50%, 0);
+    width: 11px; height: 11px;
+  }
+
+  /* the gel-pen phase label reads as a written caption under the frame */
+  .stop__when {
+    font-size: 1.05rem;
+    margin-bottom: -0.2rem;
+  }
+
+  .stop__text { max-width: none; }
+  .stop__text h3 { font-size: 1.3rem; }
+  .stop__text p { font-size: 0.95rem; }
 }
 
 /* ============================================================
