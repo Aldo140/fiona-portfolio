@@ -1,6 +1,6 @@
 # Fiona Paul — The Gallery at Night
 
-An immersive single-page portfolio for **Fiona Paul**, a painter from Dar es Salaam, Tanzania, whose work centers on one devotion: how light lands on Black and brown skin.
+An immersive single-page portfolio for **Fiona Paul** ([@0pheliarts_](https://www.instagram.com/0pheliarts_/)), a painter from Dar es Salaam, Tanzania, whose work centers on one devotion: how light lands on Black and brown skin.
 
 **Live site:** https://aldo140.github.io/fiona-portfolio/
 
@@ -15,6 +15,7 @@ The site is not a template with her images dropped in. Every section, interactio
 | **The Works** | A pinned horizontal gallery wall: scroll down, the wall slides sideways. On mobile it becomes a swipeable salon wall with frames hung at uneven heights |
 | **She Paints Sound** | A live canvas flow field swirls Van Gogh eddies behind her oil-pastel violinist |
 | **Every Painting Is Two Paintings** | A drag slider wipes between the real underpainting and the finished mother-and-child canvas |
+| **The Journey** | Her path as a winding exhibition corridor: classical studies → colour → the thesis → beyond portraiture → now, ending at her Instagram |
 | **The Studio** | Her desk, parcels and time-lapse video as taped kraft polaroids (an overlapping collage on mobile) |
 | **Write to Her** | A kraft letter with a perforated butterfly stamp |
 
