@@ -27,6 +27,53 @@ const isMobile = window.matchMedia("(max-width: 760px)").matches;
 }
 
 /* ------------------------------------------------------------
+   HERO — pointer parallax. Layers sit at different depths and
+   lean toward the cursor; uses the `translate` property so it
+   composes with each layer's own transform animations.
+   Desktop fine-pointers only.
+   ------------------------------------------------------------ */
+{
+  const hero = document.querySelector(".hero");
+  const finePointer = window.matchMedia("(pointer: fine)").matches;
+  if (hero && finePointer && !reduceMotion && !isMobile) {
+    const layers = [
+      { el: document.querySelector(".hero__portrait"), depth: 14 },
+      { el: document.querySelector(".hero__copy"), depth: -7 },
+      { el: document.querySelector(".hero__strokes"), depth: 22 },
+      { el: document.querySelector(".butterfly--a"), depth: 30 },
+      { el: document.querySelector(".butterfly--d"), depth: 26 },
+    ].filter((l) => l.el);
+
+    let tx = 0, ty = 0;       // target (pointer)
+    let cx = 0, cy = 0;       // current (eased)
+    let rafId = null;
+
+    const tick = () => {
+      cx += (tx - cx) * 0.06;
+      cy += (ty - cy) * 0.06;
+      for (const { el, depth } of layers) {
+        el.style.translate = `${cx * depth}px ${cy * depth}px`;
+      }
+      if (Math.abs(tx - cx) + Math.abs(ty - cy) > 0.001) {
+        rafId = requestAnimationFrame(tick);
+      } else { rafId = null; }
+    };
+
+    hero.addEventListener("pointermove", (ev) => {
+      const r = hero.getBoundingClientRect();
+      tx = (ev.clientX - r.left) / r.width - 0.5;
+      ty = (ev.clientY - r.top) / r.height - 0.5;
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    });
+
+    hero.addEventListener("pointerleave", () => {
+      tx = 0; ty = 0;
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    });
+  }
+}
+
+/* ------------------------------------------------------------
    THE LIGHT — spotlight follows the pointer.
    Without a pointer (touch / reduced motion) the beam slowly
    pans on its own so the section still breathes.
@@ -66,11 +113,38 @@ const isMobile = window.matchMedia("(max-width: 760px)").matches;
       auto = false;
       stage.classList.add("is-touched");
       const r = stage.getBoundingClientRect();
-      setBeam(((ev.clientX - r.left) / r.width) * 100, ((ev.clientY - r.top) / r.height) * 100);
+      const px = (ev.clientX - r.left) / r.width;
+      const py = (ev.clientY - r.top) / r.height;
+      setBeam(px * 100, py * 100);
+      // the frame leans away from the light, like a canvas on a wall
+      if (!reduceMotion && !isMobile) {
+        stage.style.transform = `rotateY(${(px - 0.5) * 3.5}deg) rotateX(${(0.5 - py) * 2.5}deg)`;
+      }
     });
+
+    // touch: a tap places the lantern there, then it wanders again
+    stage.addEventListener("pointerdown", (ev) => {
+      if (ev.pointerType !== "touch") return;
+      auto = false;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      stage.classList.add("is-touched");
+      const r = stage.getBoundingClientRect();
+      setBeam(((ev.clientX - r.left) / r.width) * 100, ((ev.clientY - r.top) / r.height) * 100);
+      setTimeout(() => {
+        auto = true;
+        if (visible && !rafId) rafId = requestAnimationFrame(autoPan);
+      }, 2600);
+    });
+
+    // wording matches the input you actually have
+    const hint = document.getElementById("lightHint");
+    if (hint && window.matchMedia("(pointer: coarse)").matches) {
+      hint.textContent = "tap to move your light";
+    }
 
     stage.addEventListener("pointerleave", () => {
       auto = true;
+      stage.style.transform = "";
       if (visible && !rafId) rafId = requestAnimationFrame(autoPan);
     });
   }
@@ -124,6 +198,20 @@ const isMobile = window.matchMedia("(max-width: 760px)").matches;
     track.querySelectorAll("img").forEach((img) => {
       if (!img.complete) img.addEventListener("load", () => { measure(); update(); }, { once: true });
     });
+  }
+
+  // mobile: the bar tracks the swipe instead of the page scroll
+  if (section && track && bar && isMobile) {
+    let ticking = false;
+    track.addEventListener("scroll", () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const max = track.scrollWidth - track.clientWidth;
+        bar.style.width = `${max > 0 ? (track.scrollLeft / max) * 100 : 0}%`;
+      });
+    }, { passive: true });
   }
 }
 
